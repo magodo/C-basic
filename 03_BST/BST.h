@@ -3,27 +3,6 @@
  Created Time: Wed 01 Mar 2017 08:06:02 PM CST
  Description: 
  
-    This BST class is a container, users need to implement the element, which
-    at least contain following member variables/functions:
-    
-    struct T
-    {
-        T(key,value):
-          key(key),
-          value(value),
-          left(NULL),
-          right(NULL)
-        {}
-
-        int key;  // used for comparing 
-        CopyableType value; // used for storing record
-        T *left;  // pointer to left sub-tree
-        T *right; // pointer to right sub-tree
-        
-        static bool le(T e1, T e2); // return true if e1 <= e2 under some rule
-        void inspect(T);            // show the content of each element, for traverse
-    };
-
  ************************************************************************/
 
 #ifndef BST_H
@@ -31,8 +10,41 @@
 
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
+
+
+/**
+ * Declaration of Node
+ */
+
+template<typename T>
+struct Node
+{
+    Node(int key):
+        Node(key, T())
+    {}
+
+    Node(int key, T value):
+        key(key),
+        value(value),
+        left(NULL),
+        right(NULL)
+    {}
+
+    T value;
+    int key;
+    Node *left;
+    Node *right;
+    
+    inline static bool le(Node n, Node m) { return (n.key <= m.key);}
+    inline void inspect(){ cout << "(" << key << ", " << value << ") ";}
+};
+
+/**
+ * Declaration of BST
+ */
 
 template <class T>
 class BST

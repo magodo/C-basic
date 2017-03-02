@@ -9,18 +9,17 @@
 using namespace std;
 
 #include "BST.h"
-#include "Node.h"
 
 int main()
 {
-    BST<Node> binary_tree;
+    BST<Node<int> > binary_tree;
 
     /**
      * Construct a non-BST tree and traverse it 
      */
-    binary_tree.root = new Node(2,2);
-    binary_tree.root->left = new Node(1,1);
-    binary_tree.root->left->right = new Node(3,3);
+    binary_tree.root = new Node<int>(2);
+    binary_tree.root->left = new Node<int>(1);
+    binary_tree.root->left->right = new Node<int>(3);
     binary_tree.traverse();
     cout << endl;
 
@@ -29,9 +28,9 @@ int main()
      */
 
     vector<int> v{1,5,2,23,5,7,324,4,6,324,35,7,32};
-    vector<Node> vn;
+    vector<Node<int>> vn;
     for (auto i: v)
-        vn.push_back(Node(i,i));
+        vn.push_back(Node<int>(i));
 
     binary_tree.initBalanceBST(vn);
     binary_tree.traverse();
