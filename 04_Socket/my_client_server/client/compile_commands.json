@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/magodo/github/code/C-basic/04_Socket/client/build",
+  "command": "/usr/bin/cc      -o CMakeFiles/client.dir/client.c.o   -c /home/magodo/github/code/C-basic/04_Socket/client/client.c",
+  "file": "/home/magodo/github/code/C-basic/04_Socket/client/client.c"
+}
+]

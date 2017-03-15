@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/magodo/github/code/C-basic/04_Socket/my_client_server/client/client.c
+stdio.h
+-
+netdb.h
+-
+errno.h
+-
+sys/socket.h
+-
+unistd.h
+-
+string.h
+-
+limits.h
+-
+

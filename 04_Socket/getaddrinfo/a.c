@@ -106,16 +106,23 @@ void print_protocol(const struct addrinfo *aip)
         case IPPROTO_TCP:
             printf("Protocal: TCP\n");
             break;
+        default:
+            printf("Protocal: %d\n", aip->ai_protocol);
+            break;
     }
 }
 
 int main(int argc, char *argv[])
 {
-    // usage: ./a.out service
+    if (argc != 2)
+    {
+        printf("usage: $ ./a.out service\n");
+        exit(1);
+    }
 
     long buf_len;
     char *host, ip_address[INET6_ADDRSTRLEN];
-    struct addrinfo *ai_list, hints, *aip;
+    struct addrinfo *ai_list = NULL, hints, *aip;
 
     // get node
     buf_len = sysconf(_SC_HOST_NAME_MAX);
@@ -131,9 +138,12 @@ int main(int argc, char *argv[])
     hints.ai_next = NULL;
 
     getaddrinfo(host, argv[1], &hints, &ai_list); // FIXME
+
+    int index = 0;
     for (aip = ai_list; aip != NULL; aip = aip->ai_next)
     {
         printf("-----------------------------------\n");
+        printf("Index: %d\n", index++);
         print_flag(aip);
         print_family(aip);
         print_type(aip);
