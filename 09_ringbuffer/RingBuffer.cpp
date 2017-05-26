@@ -6,32 +6,63 @@
 
 #include "RingBuffer.h"
 
-RingBuffer::RingBuffer(int size):
-    buf_size_(size),
+template<class T>
+RingBuffer<T>::RingBuffer(int count):
     read_idx_(0),
     write_idx_(0),
-    free_space_(buf_size_)
-{}
-
-bool RingBuffer::updateReadIdx(int stride)
+    free_space_(count)
 {
-    if (stride > (buf_size_ - free_space_))
+    buf_.resize(count);
+}
+
+template <class T>
+bool RingBuffer<T>::write(int count, T *inputs)
+{
+    /* check if enough free space to hold inputs */
+    if (count > free_space_)
         return false;
-    read_idx_ = incIdx(read_idx_, stride);
-    free_space_ += stride;
+
+    /* write each input */
+    for (int i = 0; i < count; ++i)
+    {
+        read_idx_ = incIdx(read_idx_, 1);
+        buf_[read_idx_] = inputs[i];
+    }
+
+    /* update free space */
+    free_space_ -= count;
+
     return true;
 }
 
-bool RingBuffer::updateWriteIdx(int stride)
+template <class T>
+bool RingBuffer<T>::read(int count, T *outputs)
 {
-    if (stride > free_space_)
+    /* check if enough data to be read */
+    if (count > (buf_.size() - free_space_))
         return false;
-    write_idx_ = incIdx(write_idx_, stride);
-    free_space_ -= stride;
+
+    /* read data */
+    for (int i = 0; i < count; ++i)
+    {
+        write_idx_ = incIdx(write_idx_, 1);
+        outputs[i] = buf_[write_idx_];
+    }
+
+    /* update free space */
+
+    free_space_ += count;
+
     return true;
 }
 
-int RingBuffer::incIdx(int index, int stride)
+template <class T>
+int RingBuffer<T>::incIdx(int index, int stride)
 {
-    return (index+stride)%buf_size_;
+    return (index+stride)%buf_.size();
 }
+
+/******************************************
+ * Define all template class to use here
+ ******************************************/
+template class RingBuffer<int>;

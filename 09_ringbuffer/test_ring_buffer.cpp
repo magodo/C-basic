@@ -9,33 +9,39 @@
 
 TEST(RingBuffer, NoFreeSpaceToWrite)
 {
-    RingBuffer ring_buffer(5);
+    RingBuffer<int> ring_buffer(5);
 
     // write in something
-    EXPECT_TRUE(ring_buffer.updateWriteIdx(3));
+    int input[3] = {1,2,3};
+    EXPECT_TRUE(ring_buffer.write(3, input));
 
     // read something
-    EXPECT_TRUE(ring_buffer.updateReadIdx(3));
+    int output[3];
+    EXPECT_TRUE(ring_buffer.read(3, output));
+    for (int i = 0; i < 3; i++)
+        EXPECT_TRUE(input[i] == output[i]);
     
-    // write in until full
-    EXPECT_TRUE(ring_buffer.updateWriteIdx(5));
+    // write in something
+    EXPECT_TRUE(ring_buffer.write(3, input));
     
-    // write something
-    EXPECT_FALSE(ring_buffer.updateWriteIdx(1));
+    // write something again, exceed limit
+    EXPECT_FALSE(ring_buffer.write(3, input));
 
 }
 
 TEST(RingBuffer, NothingToRead)
 {
-    RingBuffer ring_buffer(5);
+    RingBuffer<int> ring_buffer(5);
     
     // there is nothing at first
-    EXPECT_FALSE(ring_buffer.updateReadIdx(1));
+    int output[3];
+    EXPECT_FALSE(ring_buffer.read(3, output));
     
     // write in something
-    EXPECT_TRUE(ring_buffer.updateWriteIdx(3));
+    int input[2];
+    EXPECT_TRUE(ring_buffer.write(2, input));
     
-    // read something
-    EXPECT_FALSE(ring_buffer.updateReadIdx(4));
+    // read more
+    EXPECT_FALSE(ring_buffer.read(3, output));
 
 }

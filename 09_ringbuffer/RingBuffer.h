@@ -7,16 +7,21 @@
 #ifndef __RING_BUFFER_H__
 #define __RING_BUFFER_H__ 
 
+#include <vector>
+
+template <class T>
 class RingBuffer
 {
     public:
-        RingBuffer(int size);
-        bool updateReadIdx(int stride);
-        bool updateWriteIdx(int stride);
+        RingBuffer(int count);
+        bool write(int count, T *inputs);
+        bool read(int count, T *outputs);
 
     private:
         int incIdx(int index, int stride);
-        const int buf_size_;
+
+    private:
+        std::vector<T> buf_;
         int read_idx_;  // starting from 0
         int write_idx_; // starting from 0
         int free_space_;
