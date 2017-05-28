@@ -1,0 +1,83 @@
+/*************************************************************************
+ Author: Zhaoting Weng
+ Created Time: Mon 22 May 2017 10:48:15 AM CST
+ Description: 
+ ************************************************************************/
+
+#include <map>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+map<string, map<string, string> >parse(string file)
+{
+    const int buff_size = 255;
+    ifstream input(file.c_str());
+
+    map<string, map<string, string> > ans;
+    
+    char one_line[buff_size];
+
+    string line, section, key, value;
+
+    while(input)
+    {
+        getline(input, line, '\n');
+        istringstream is(line);
+        is.getline(one_line, buff_size, '=');
+        if (is.good()) /* this is a k-v pair line*/
+        {
+            /* seek to the begining of sstream*/
+            is.seekg(0);
+
+            /* get "key" from sstream */
+            getline(is, key, '='); // TODO: key need remove trailing space
+            string::size_type pos_last_no_space =  key.find_last_not_of(' ');
+            key = key.substr(0, pos_last_no_space+1);
+
+            /* get "value" from sstream */
+            getline(is, value, '\n');
+            string::size_type pos_quote_start = value.find_first_of('"');
+            string::size_type pos_quote_end = value.find_last_of('"');
+            value = value.substr(pos_quote_start+1, pos_quote_end-pos_quote_start-1);
+
+            cout << "k-v pair: (" << key << ":" << value << ")"<< endl;
+
+        }
+        else
+        {
+            /* seek to the begining of sstream*/
+            is.seekg(0);
+
+            is.getline(one_line, buff_size, '[');
+
+            if (is.good()) /* this is a section line*/
+            {
+                /* seek to the begining of sstream*/
+                is.seekg(0);
+
+                getline(is, line, '\n');
+                string::size_type pos_brace_start = section.find_first_of('[');
+                string::size_type pos_brace_end = section.find_first_of(']');
+                section = line.substr(pos_brace_start+1, pos_brace_end-pos_brace_start-1);
+
+                cout << "section: (" << section << ")" << endl;
+
+            }
+            /*
+            else
+            {
+                // not-to-parse line
+            }
+            */
+        }
+    }
+}
+
+int main()
+{
+    parse("config.ini");
+}
