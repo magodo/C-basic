@@ -15,6 +15,13 @@ RingBuffer<T>::RingBuffer(int count):
     buf_.resize(count);
 }
 
+template<class T>
+RingBuffer<T>::RingBuffer():
+    read_idx_(0),
+    write_idx_(0),
+    free_space_(0)
+{}
+
 template <class T>
 bool RingBuffer<T>::write(int count, T *inputs)
 {
@@ -22,11 +29,14 @@ bool RingBuffer<T>::write(int count, T *inputs)
     if (count > free_space_)
         return false;
 
-    /* write each input */
+    /* write each input and update write index */
     for (int i = 0; i < count; ++i)
     {
-        read_idx_ = incIdx(read_idx_, 1);
-        buf_[read_idx_] = inputs[i];
+        if (inputs != nullptr)
+            buf_[write_idx_] = inputs[i];
+        else 
+            buf_[write_idx_] = 0;
+        write_idx_ = incIdx(write_idx_, 1);
     }
 
     /* update free space */
@@ -42,17 +52,36 @@ bool RingBuffer<T>::read(int count, T *outputs)
     if (count > (buf_.size() - free_space_))
         return false;
 
-    /* read data */
+    /* read data and update read index */
     for (int i = 0; i < count; ++i)
     {
-        write_idx_ = incIdx(write_idx_, 1);
-        outputs[i] = buf_[write_idx_];
+        if (outputs != nullptr)
+            outputs[i] = buf_[read_idx_ ];
+        read_idx_ = incIdx(read_idx_ , 1);
     }
 
     /* update free space */
 
     free_space_ += count;
 
+    return true;
+}
+template <class T>
+bool RingBuffer<T>::read_nopop(int offset, int count, T *outputs)
+{
+    /* check if offset exceeds busy space */
+    if (offset > (busySpace()-1))
+        return false;
+
+    /* check if enough data to be read */
+    if (count > (busySpace()-offset))
+        return false;
+
+    /* read data */
+    for (int i = 0; i < count; ++i)
+    {
+        outputs[i] = buf_[incIdx(read_idx_+offset, i)];
+    }
     return true;
 }
 

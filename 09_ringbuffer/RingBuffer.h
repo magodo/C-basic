@@ -13,9 +13,13 @@ template <class T>
 class RingBuffer
 {
     public:
+        RingBuffer();
         RingBuffer(int count);
         bool write(int count, T *inputs);
         bool read(int count, T *outputs);
+        bool read_nopop(int offset, int count, T *outputs);
+        inline int freeSpace() {return free_space_;}
+        inline int busySpace() {return (buf_.size() - free_space_);}
 
     private:
         int incIdx(int index, int stride);

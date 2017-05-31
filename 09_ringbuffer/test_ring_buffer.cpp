@@ -6,6 +6,8 @@
 
 #include "gtest/gtest.h"
 #include "RingBuffer.h"
+#include <iostream>
+using namespace std;
 
 TEST(RingBuffer, NoFreeSpaceToWrite)
 {
@@ -43,5 +45,28 @@ TEST(RingBuffer, NothingToRead)
     
     // read more
     EXPECT_FALSE(ring_buffer.read(3, output));
+
+}
+
+TEST(RingBuffer, PutGetCorrect)
+{
+    RingBuffer<int> ring_buffer(6);
+
+    int input = 0;
+    int output = -1;
+
+    ring_buffer.write(1, &input);
+    ring_buffer.read_nopop(0, 1, &output);
+    EXPECT_TRUE(0 == output);
+    ring_buffer.read(1, &output);
+    EXPECT_TRUE(0 == output);
+
+    input = 1;
+
+    ring_buffer.write(1, &input);
+    ring_buffer.read_nopop(0, 1, &output);
+    EXPECT_TRUE(1 == output);
+    ring_buffer.read(1, &output);
+    EXPECT_TRUE(1 == output);
 
 }
