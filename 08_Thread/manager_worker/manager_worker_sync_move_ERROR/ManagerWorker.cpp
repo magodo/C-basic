@@ -207,12 +207,15 @@ void Manager::initWorker(std::string name)
         return;
 
     /* new thread */
-    worker.thread = std::thread(newThread, std::ref(worker));
     
     /* wait for notification */
     {
         std::unique_lock<std::mutex> locker(lock_resp_);
+
+        worker.thread = std::thread(newThread, std::ref(worker));
+
         worker.is_init = true;
+
         cv_resp_.wait(locker);
     }
 

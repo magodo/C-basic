@@ -181,13 +181,16 @@ void Manager::initWorker(std::string name)
     if (worker.is_init)
         return;
 
-    /* new thread */
-    worker.thread = std::thread(newThread, std::ref(worker));
     
-    /* wait for notification */
     {
         std::unique_lock<std::mutex> locker(lock_resp_);
+
+        /* new thread */
+        worker.thread = std::thread(newThread, std::ref(worker));
+
         worker.is_init = true;
+
+        /* wait for notification */
         cv_resp_.wait(locker);
     }
 
@@ -195,6 +198,7 @@ void Manager::initWorker(std::string name)
 
 void Manager::newThread(Worker &worker)
 {
+    /* init worker */
     worker.init();
 
     /* Notify manager finish of initiating */
