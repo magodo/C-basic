@@ -3,64 +3,7 @@
  Created Time: Sun 28 May 2017 04:50:34 PM CST
  Description: 
  ************************************************************************/
-
-#include <iostream>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <chrono>
-#include <map>
-
-class Manager;
-
-class Worker
-{
-    public:
-        bool is_running;
-        bool is_init;
-        std::thread thread;
-    public:
-        Worker();
-        Worker(std::string name);
-        Worker(Worker&& other);
-        Worker& operator=(Worker&& other);
-
-        void setManager(Manager *manager);
-        std::mutex& getLockReq(); 
-        std::mutex& getLockResp(); 
-        std::condition_variable& getCvReq(); 
-        std::condition_variable& getCvResp(); 
-
-    private:
-        std::string name_;
-        Manager *manager_;
-};
-
-class Manager
-{
-    friend class Worker;
-
-    public:
-        void attachWorker(std::string name);
-        void detachWorker(std::string name);
-
-        void stopWorker(std::string name);
-        void startWorker(std::string name);
-        void deinitWorker(std::string name);
-        void initWorker(std::string name);
-
-    private:
-        static void newThread(Worker &worker);
-
-    private:
-
-        std::map<std::string, Worker> named_workers;
-
-        /* mutex and condition variable for sync between workers */
-        std::mutex lock_req_, lock_resp_;
-        std::condition_variable cv_req_, cv_resp_;
-};
-
+#include "ManagerWorker.h"
 
 /* WORKER */
 
@@ -113,6 +56,28 @@ Worker::Worker(Worker&& other)
     other.manager_ = nullptr;
 }
 
+Worker::~Worker(){}
+
+void Worker::init()
+{
+    std::cout << "Worker: init..." << std::endl;
+}
+
+void Worker::deinit()
+{
+    std::cout << "Worker: deinit..." << std::endl;
+}
+
+void Worker::run(bool b)
+{
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::cout << "Worker: running..." << std::endl;
+}
+
+void Worker::stop()
+{
+    std::cout << "Worker: stop..." << std::endl;
+}
 
 void Worker::setManager(Manager *manager)
 { manager_ = manager;}
@@ -122,13 +87,17 @@ std::mutex& Worker::getLockResp() {return manager_->lock_resp_;}
 std::condition_variable& Worker::getCvReq() {return manager_->cv_req_;}
 std::condition_variable& Worker::getCvResp() {return manager_->cv_resp_;}
 
+std::string Worker::getName()
+{
+    return name_;;
+}
+
 /* MANAGER */
 
-void Manager::attachWorker(std::string name)
+void Manager::attachWorker(Worker&& worker)
 {
-    Worker worker(name);
     worker.setManager(this);
-    named_workers[name] = std::move(worker);
+    named_workers.emplace(worker.getName(),std::move(worker));
 }
 
 void Manager::detachWorker(std::string name)
@@ -251,7 +220,7 @@ void Manager::initWorker(std::string name)
 
 void Manager::newThread(Worker &worker)
 {
-    std::cout << "Worker: initiating..." << std::endl;
+    worker.init();
 
     /* Notify manager finish of initiating */
     {
@@ -291,13 +260,12 @@ void Manager::newThread(Worker &worker)
 
         while (worker.is_running && worker.is_init)
         {
-            std::cout << "Worker: doing something..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            worker.run(true);
         }
         if (!worker.is_init)
             break;
 
-        std::cout << "Worker: stopping..." << std::endl;
+        worker.stop();
 
         /* Notify finish of stopping */
         {
@@ -308,7 +276,7 @@ void Manager::newThread(Worker &worker)
         worker.getCvResp().notify_one();
     }
 
-    std::cout << "Worker: deinitiating..." << std::endl;
+    worker.deinit();
 
     /* Notify finish of  deinitiate */
     {
@@ -322,52 +290,3 @@ void Manager::newThread(Worker &worker)
     return;
 }
 
-/* MAIN */
-
-int main()
-{
-    Manager manager;
-    int choice;
-    std::string name;
-    bool to_quit = false;
-
-    while (!to_quit)
-    {
-        std::cout << "0. New worker\n1. Delete worker\n2. Init worker\n3. Start worker\n4. Stop worker\n5. Deinit worker\n6. Quit\nEnter the number of what you want to do: ";
-        std::cin >> choice;
-        if (choice != 6)
-        {
-            std::cout << "Thread name: ";
-            std::cin >> name;
-        }
-        
-        switch (choice)
-        {
-            case 0:
-                manager.attachWorker(name);
-                break;
-            case 1:
-                manager.detachWorker(name);
-                break;
-            case 2:
-                manager.initWorker(name);
-                break;
-            case 3:
-                manager.startWorker(name);
-                break;
-            case 4:
-                manager.stopWorker(name);
-                break;
-            case 5:
-                manager.deinitWorker(name);
-                break;
-            case 6:
-                to_quit = true;
-                break;
-            default:
-                std::cerr << "???" << std::endl;
-                break;
-        }
-    }
-    return 0;
-}
