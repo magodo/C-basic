@@ -23,4 +23,8 @@ int main()
     }
     mgr.InitWorkers(thread_names);
 
+    for (auto& name: thread_names)
+    {
+        mgr.DeleteWorker(name);
+    }
 }

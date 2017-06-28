@@ -3,8 +3,10 @@
 #include "ThreadWorker.h"
 
 ThreadWorker::ThreadWorker(std::string name):
-    to_deinit_(false),
+    to_quit_(false),
+    to_init_(false),
     to_run_(false),
+    is_inited_(false),
     is_running_(false),
     name_(name),
     cv_req_(),
@@ -34,96 +36,114 @@ void ThreadWorker::Stop()
 
 void ThreadWorker::ThreadFunction(ThreadWorker& worker)
 {
-    /******** Creation Sync ******/
-
+    /* -> deinit */
     {
+        {
+            std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
+        }
         std::unique_lock<std::mutex> lk_req(worker.mutex_req_);
-
         /* Notify manager respopnse: "finish of creation" */
-        {
-            std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
-        }
         worker.cv_resp_.notify_one();
-
-        /* Wait manager request: "init" or "deinit" */
+        /* Wait manager request: "init" or "quit" */
         worker.cv_req_.wait(lk_req);
     }
 
-    /* request: "deinit" */
-    if (worker.to_deinit_)
+    while (!worker.to_quit_)
     {
-        /* Notify manager respopnse: "finish of deinit" */
+        while (worker.to_init_ && !worker.to_quit_)
         {
-            std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
+            /* deinit -> init */
+            if (!worker.is_inited_)
+            {
+                /* Init */
+                worker.Init();
+                worker.is_inited_ = true;
+
+                {
+                    std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
+                }
+                std::unique_lock<std::mutex> lk_req(worker.mutex_req_);
+                /* Notify manager respopnse: "finish of init" */
+                worker.cv_resp_.notify_one();
+                /* Wait manager request: "run" or "deinit" or "quit" */
+                worker.cv_req_.wait(lk_req);
+            }
+
+            while (worker.to_run_ && worker.to_init_ && !worker.to_quit_)
+            {
+                /* init -> run */
+                if (!worker.is_running_)
+                {
+                    worker.is_running_ = true;
+
+                    {
+                        std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
+                    }
+                    /* Notify manager respopnse: "finish of run" */
+                    worker.cv_resp_.notify_one();
+                }
+
+                /* Run */
+                worker.Run();
+            }
+
+            /* run -> init */
+            if (!worker.to_run_ && worker.is_running_)
+            {
+                /* Stop */
+                worker.Stop();
+                worker.is_running_ = false;
+
+                {
+                    std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
+                }
+                std::unique_lock<std::mutex> lk_req(worker.mutex_req_);
+                /* Notify manager respopnse: "finish of stop" */
+                worker.cv_resp_.notify_one();
+                /* Wait manager request: "run" or "deinit" or "quit" */
+                worker.cv_req_.wait(lk_req);
+            }
         }
-        worker.cv_resp_.notify_one();
-        return;
-    }
 
-    /******** Init Sync ******/
-
-    {
-        std::unique_lock<std::mutex> lk_req(worker.mutex_req_);
-
-        /* Init */
-        worker.Init();
-
-        /* Notify manager respopnse: "finish of init" */
+        /* run/init -> deinit */
+        if (!worker.to_init_ && worker.is_inited_)
         {
-            std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
-        }
-        worker.cv_resp_.notify_one();
+            if (worker.is_running_)
+            {
+                worker.Stop();
+                worker.is_running_ = false;
+            }
 
-        /* Wait manager request: "run" or "deinit" */
-        worker.cv_req_.wait(lk_req);
-    }
-
-    /******** Loop  ******/
-
-    while (!worker.to_deinit_)
-    {
-        /* "stop" -> "run" */
-        if (worker.to_run_ && !worker.is_running_)
-        {
-            worker.is_running_ = true;
-
-            /* Notify manager respopnse: "finish of start" */
+            /* Deinit */
+            worker.Deinit();
+            worker.is_inited_ = false;
             {
                 std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
             }
-            worker.cv_resp_.notify_one();
-        }
-
-        /* "run" -> "stop" */
-        if (!worker.to_run_ && worker.is_running_)
-        {
             std::unique_lock<std::mutex> lk_req(worker.mutex_req_);
-
-            /* Stop */
-            worker.Stop();
-            worker.is_running_ = false;
-
-            /* Notify manager respopnse: "finish of stop" */
-            {
-                std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
-            }
+            /* Notify manager respopnse: "finish of deinit" */
             worker.cv_resp_.notify_one();
-
-            /* Wait manager request: "run" or "deinit" */
+            /* Wait manager request: "init" or "quit" */
             worker.cv_req_.wait(lk_req);
         }
-    
-        /* Run */
-        worker.Run();
     }
 
-    /* Notify manager respopnse: "finish of deinit" */
+    /* run/init/deinit -> quit */
+    if (worker.is_running_)
+    {
+        worker.Stop();
+        worker.is_running_ = false;
+    }
+    if (worker.is_inited_)
+    {
+        worker.Deinit();
+        worker.is_inited_ = false;
+    }
     {
         std::lock_guard<std::mutex> lk_resp(worker.mutex_resp_);
-        worker.Deinit();
     }
+    /* Notify manager respopnse: "finish of quit" */
     worker.cv_resp_.notify_one();
-
     return;
 }
 

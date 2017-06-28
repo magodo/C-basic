@@ -25,19 +25,26 @@ class ThreadWorker
         // Used by manager thread
         
         inline std::string GetName() {return name_;}
+        inline bool IsInited() {return is_inited_;}
+        inline bool IsRunning() {return is_running_;}
         inline std::condition_variable& GetReqCv() { return cv_req_;}
         inline std::condition_variable& GetRespCv() { return cv_resp_;}
         inline std::mutex& GetReqMutex() {return mutex_req_;}
         inline std::mutex& GetRespMutex() {return mutex_resp_;}
 
-        inline void SetToDeinit(bool to_deinit) {to_deinit_ = to_deinit;}
-        inline void SetToRun(bool to_run)       {to_run_ = to_run;}
+        inline void ToQuit()        {to_quit_ = true;}
+        inline void ToInit()        {to_init_ = true;}
+        inline void ToDeinit()      {to_init_ = false;}
+        inline void ToRun()         {to_run_  = true;}
+        inline void ToStop()        {to_run_  = false;}
         static void ThreadFunction(ThreadWorker& worker);
 
     private:
 
-        bool to_deinit_;
+        bool to_quit_;
+        bool to_init_;
         bool to_run_;
+        bool is_inited_;
         bool is_running_;
         std::string name_;
 
