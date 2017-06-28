@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/build",
+  "command": "/usr/bin/c++      -std=gnu++11 -o CMakeFiles/foobar.dir/ThreadManager.cpp.o -c /home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp",
+  "file": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp"
+},
+{
+  "directory": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/build",
+  "command": "/usr/bin/c++      -std=gnu++11 -o CMakeFiles/foobar.dir/ThreadWorker.cpp.o -c /home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp",
+  "file": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp"
+}
+]
