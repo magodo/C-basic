@@ -69,6 +69,8 @@ bool ThreadManager::InitWorker(std::string worker_name)
         /* Wait response "finish of init" */
         worker.GetRespCv().wait(lk_resp);
     }
+
+    return true;
 }
 
 bool ThreadManager::InitWorkers(std::vector<std::string> worker_name_list)
@@ -110,6 +112,8 @@ bool ThreadManager::InitWorkers(std::vector<std::string> worker_name_list)
 
         worker.GetRespCv().wait(*name_to_ptr_lock_resp[worker_name]);
     }
+
+    return true;
 }
 
 
@@ -137,6 +141,8 @@ bool ThreadManager::DeinitWorker(std::string worker_name)
         /* Wait response "finish of deinit" */
         worker.GetRespCv().wait(lk_resp);
     }
+
+    return true;
 }
 
 bool ThreadManager::RunWorker(std::string worker_name)
@@ -163,6 +169,8 @@ bool ThreadManager::RunWorker(std::string worker_name)
         /* Wait response "finish of run" */
         worker.GetRespCv().wait(lk_resp);
     }
+
+    return true;
 }
 
 bool ThreadManager::StopWorker(std::string worker_name)
@@ -188,5 +196,6 @@ bool ThreadManager::StopWorker(std::string worker_name)
         /* Wait response "finish of stop" */
         worker.GetRespCv().wait(lk_resp);
     }
-}
 
+    return true;
+}
