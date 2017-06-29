@@ -32,6 +32,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <functional>
 #include <condition_variable>
 #include "ThreadManager.h"
 

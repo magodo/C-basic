@@ -68,12 +68,8 @@ bool ThreadManager::DeleteWorker(std::string worker_name)
 
         if (worker.IsIniting())
         {
-            {
-                std::unique_lock<std::mutex> lk_req(worker.GetReqMutex());
-                worker.ToQuit();
-            }
-
-            worker.GetRespCv().wait(lk_resp, [&]{return worker.IsQuiting();});
+            //std::unique_lock<std::mutex> lk_req(worker.GetReqMutex());
+            worker.ToQuit();
         }
         else
         {
@@ -83,7 +79,7 @@ bool ThreadManager::DeleteWorker(std::string worker_name)
                     std::unique_lock<std::mutex> lk_req(worker.GetReqMutex());
                     worker.ToStop();
                 }
-                worker.GetRespCv().wait(lk_resp, [&]{return !worker.IsRunning();});
+                worker.GetRespCv().wait(lk_resp, [&]{return !worker.IsInited();});
             }
 
             {
@@ -126,12 +122,10 @@ bool ThreadManager::RunWorker(std::string worker_name)
         }
         else if (worker.IsIniting())
         {
-            {
-                std::unique_lock<std::mutex> lk_req(worker.GetReqMutex());
-                worker.ToRun();
-            }
+            //std::unique_lock<std::mutex> lk_req(worker.GetReqMutex());
+            worker.ToRun();
         }
-        else
+        else // IsInited
         {
             /* Request thread worker "run" */
             {
@@ -167,10 +161,8 @@ bool ThreadManager::StopWorker(std::string worker_name)
         }
         else if (worker.IsIniting())
         {
-            {
-                std::unique_lock<std::mutex> lk_req(worker.GetReqMutex());
-                worker.ToStop();
-            }
+            //std::unique_lock<std::mutex> lk_req(worker.GetReqMutex());
+            worker.ToStop();
         }
         else // Running
         {

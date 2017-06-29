@@ -1,32 +1,32 @@
 [
 {
-  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/build",
-  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_inits.dir/ThreadManager.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp",
-  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp"
+  "directory": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/build",
+  "command": "/usr/bin/c++     -std=c++11   -o CMakeFiles/test_interactive.dir/ThreadManager.cpp.o -c /home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp",
+  "file": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp"
 },
 {
-  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/build",
-  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_inits.dir/ThreadWorker.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp",
-  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp"
+  "directory": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/build",
+  "command": "/usr/bin/c++     -std=c++11   -o CMakeFiles/test_interactive.dir/ThreadWorker.cpp.o -c /home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp",
+  "file": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp"
 },
 {
-  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/build",
-  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_inits.dir/test_inits.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/test_inits.cpp",
-  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/test_inits.cpp"
+  "directory": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/build",
+  "command": "/usr/bin/c++     -std=c++11   -o CMakeFiles/test_interactive.dir/test_interactive.cpp.o -c /home/magodo/github/C-basic/08_Thread/better_manager_worker/test_interactive.cpp",
+  "file": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/test_interactive.cpp"
 },
 {
-  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/build",
-  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_interactive.dir/ThreadManager.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp",
-  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp"
+  "directory": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/build",
+  "command": "/usr/bin/c++     -std=c++11   -o CMakeFiles/test_inits.dir/ThreadManager.cpp.o -c /home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp",
+  "file": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadManager.cpp"
 },
 {
-  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/build",
-  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_interactive.dir/ThreadWorker.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp",
-  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp"
+  "directory": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/build",
+  "command": "/usr/bin/c++     -std=c++11   -o CMakeFiles/test_inits.dir/ThreadWorker.cpp.o -c /home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp",
+  "file": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/ThreadWorker.cpp"
 },
 {
-  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/build",
-  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_interactive.dir/test_interactive.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/test_interactive.cpp",
-  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/better_manager_worker/test_interactive.cpp"
+  "directory": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/build",
+  "command": "/usr/bin/c++     -std=c++11   -o CMakeFiles/test_inits.dir/test_inits.cpp.o -c /home/magodo/github/C-basic/08_Thread/better_manager_worker/test_inits.cpp",
+  "file": "/home/magodo/github/C-basic/08_Thread/better_manager_worker/test_inits.cpp"
 }
 ]
