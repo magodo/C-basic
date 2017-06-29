@@ -64,19 +64,23 @@ void ThreadWorker::Stop()
 
 void ThreadWorker::ThreadFunction(ThreadWorker& worker)
 {
-    std::unique_lock<std::mutex> lk_req(worker.mutex_req_, std::defered_lock);
-    std::unique_lock<std::mutex> lk_resp(worker.mutex_resp_, std::defered_lock);
 
     worker.Init();
 
-    lk_resp.lock();
-    worker.state_ = kWorkerStateInited;
-    lk_resp.unlock();
-      
-    lk_req.lock();
-    /* Initing -> Inited, wait new request from manager */
-    worker.cv_req_.wait(lk_req, [&]{return (worker.to_run_ || woker.to_quit_);});
-    lk_req.unlock();
+    /* Change status to "Inited" */
+
+    {
+        std::unique_lock<std::mutex> lk_resp(worker.mutex_resp_);
+        worker.state_ = kWorkerStateInited;
+        /* Check if there is unhandled request during init, if yes, then handle them. 
+         * Otherwise, wait request. */
+        {
+            std::unique_lock<std::mutex> lk_req(worker.mutex_req_);
+            lk_resp.unlock();
+            worker.cv_req_.wait(lk_req, [&]{return (worker.to_run_ || woker.to_quit_);});
+        }
+    }
+
 
     while (!worker.to_quit_)
     {
@@ -85,9 +89,10 @@ void ThreadWorker::ThreadFunction(ThreadWorker& worker)
             /* Inited -> Running */
             if (worker.state_ != kWorkerStateRunning)
             {
-                lk_resp.lock();
-                worker.state_ = kWorkerStateRunning;
-                lk_resp.unlock();
+                {
+                    std::unique_lock<std::mutex> lk_resp(worker.mutex_resp_);
+                    worker.state_ = kWorkerStateRunning;
+                }
                 worker.cv_resp_.notify_one();
             }
 
