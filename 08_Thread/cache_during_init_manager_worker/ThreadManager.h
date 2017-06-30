@@ -52,6 +52,7 @@ class ThreadManager
         virtual ~ThreadManager(){}
         bool NewWorker(std::shared_ptr<ThreadWorker> p_worker);
         bool DeleteWorker(std::string worker_name);
+        bool QuitWorker(std::string name);
         bool RunWorker(std::string name);
         bool StopWorker(std::string name);
     

@@ -19,10 +19,10 @@ int main()
         int choice;
         std::string worker_name;
 
-        std::cout << "1. New worker thread\n2. Delete worker thread\n3. Run worker thread\n4. Stop worker thread\n5. Quit\nEnter the number: ";
+        std::cout << "1. New worker thread\n2. Delete worker thread\n3. Run worker thread\n4. Stop worker thread\n5. Quit worker\n6. Exit\nEnter the number: ";
         std::cin >> choice;
 
-        if (choice == 5)
+        if (choice == 6)
             return 1;
 
         std::cout << "Please enter worker's name: ";
@@ -40,6 +40,9 @@ int main()
                 break;
             case 4:
                 manager.StopWorker(worker_name);
+                break;
+            case 5:
+                manager.QuitWorker(worker_name);
                 break;
             default:
                 std::cerr << "???" << std::endl;

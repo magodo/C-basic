@@ -45,7 +45,7 @@ class ThreadWorker
         kWorkerStateIniting,
         kWorkerStateInited,
         kWorkerStateRunning,
-        kWorkerStateQuiting
+        kWorkerStateQuit
     };
 
     public:
@@ -70,7 +70,7 @@ class ThreadWorker
         inline bool IsIniting() { return state_ == kWorkerStateIniting;}
         inline bool IsInited()  { return state_ == kWorkerStateInited; }
         inline bool IsRunning() { return state_ == kWorkerStateRunning;}
-        inline bool IsQuiting() { return state_ == kWorkerStateQuiting;}
+        inline bool IsQuit()    { return state_ == kWorkerStateQuit;}
 
         inline void ToRun()         { to_run_ = true;}
         inline void ToStop()        { to_run_ = false;}

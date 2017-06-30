@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/build",
+  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_automatic.dir/ThreadManager.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/ThreadManager.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/ThreadManager.cpp"
+},
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/build",
+  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_automatic.dir/ThreadWorker.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/ThreadWorker.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/ThreadWorker.cpp"
+},
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/build",
+  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_automatic.dir/test_automatic.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/test_automatic.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/test_automatic.cpp"
+},
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/build",
+  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_interactive.dir/ThreadManager.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/ThreadManager.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/ThreadManager.cpp"
+},
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/build",
+  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_interactive.dir/ThreadWorker.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/ThreadWorker.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/ThreadWorker.cpp"
+},
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/build",
+  "command": "/usr/bin/c++      -std=c++11   -o CMakeFiles/test_interactive.dir/test_interactive.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/test_interactive.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/cache_during_init_manager_worker/test_interactive.cpp"
+}
+]

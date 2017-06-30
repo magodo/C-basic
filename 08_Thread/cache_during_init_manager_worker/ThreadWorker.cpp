@@ -49,7 +49,7 @@ ThreadWorker::ThreadWorker():
 void ThreadWorker::Init()
 { 
     std::cout << "Worker [" << name_ << "]: Initing..." << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    //std::this_thread::sleep_for(std::chrono::seconds(3));
     std::cout << "Worker [" << name_ << "]: Inited" << std::endl;
 }
 
@@ -58,8 +58,8 @@ void ThreadWorker::Deinit()
 
 void ThreadWorker::Run()
 {
-    std::this_thread::sleep_for(std::chrono::seconds(2));
     std::cout << "Worker [" << name_ << "]: Run..." << std::endl;
+    //std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 void ThreadWorker::Stop()
@@ -67,31 +67,60 @@ void ThreadWorker::Stop()
 
 void ThreadWorker::ThreadFunction(ThreadWorker& worker)
 {
+    std::unique_lock<std::mutex> lk_resp(worker.mutex_resp_, std::defer_lock);
+    std::unique_lock<std::mutex> lk_req(worker.mutex_req_, std::defer_lock);
+
+    /* Initializing... */
+
     worker.Init();
-    /* Change status to "Inited" */
+
+    /* Hold response lock here because we will change status then. Release lock only when we are at
+     * a certain status. */
+    lk_resp.lock();
+
+    /* Hold request lock here because we will check any unhandled request issued during initing.
+     * Release lock when finish checking. */
+    lk_req.lock();
+
+    if (!worker.to_run_ && !worker.to_quit_)
     {
-        std::unique_lock<std::mutex> lk_resp(worker.mutex_resp_);
+        lk_req.unlock();
+
+        /* If there is no "to_run" or "to_quit" request, we can change state to "inited", after aquiring
+         * request lock, we can release response lock so that manager could proceed. */
+
+        /* Initing -> Inited */
         worker.state_ = kWorkerStateInited;
-        /* Check if there is unhandled request during init, if yes, then handle them. 
-         * Otherwise, wait request. */
-        {
-            std::unique_lock<std::mutex> lk_req(worker.mutex_req_);
-            lk_resp.unlock();
-            worker.cv_req_.wait(lk_req, [&]{return (worker.to_run_ || worker.to_quit_);});
-        }
+        lk_req.lock(); // maybe this lock is not needed be unlock beforehead.
+        lk_resp.unlock();
+        worker.cv_req_.wait(lk_req, [&]{return (worker.to_run_ || worker.to_quit_);});
     }
+
+    /* At this point, there are 2 situations need to notice:
+     *
+     * 1. During initing state, there is no "to_run"/"to_quit" request, then response lock is released here.
+     * 2. During initing state, there is "to_quit"/"to_run" request, then we are still handling this
+     *    request and holding the lock. And we will handle "to_quit" over "to_run" request if both exists. */
 
     while (!worker.to_quit_)
     {
         while (worker.to_run_)
         {
-            /* Inited -> Running */
+            /* Initing/Inited -> Running */
             if (worker.state_ != kWorkerStateRunning)
             {
-                {
-                    std::unique_lock<std::mutex> lk_resp(worker.mutex_resp_);
-                    worker.state_ = kWorkerStateRunning;
-                }
+                lk_req.unlock();
+
+                /* If this "to_run" request is received during initing, then we are still holding
+                 * response lock, so no need to lock again. Otherwise, need to lock.
+                 * This response lock guarantees manager thread is waiting before this point. */
+                if (worker.state_ != kWorkerStateIniting)
+                    lk_resp.lock();
+
+                worker.state_ = kWorkerStateRunning;
+                lk_resp.unlock();
+
+                /* TODO: If this "to_run" request is received during initing, then no need to notify. */
                 worker.cv_resp_.notify_one();
             }
 
@@ -99,25 +128,33 @@ void ThreadWorker::ThreadFunction(ThreadWorker& worker)
         }
 
         /* Running -> Inited, wait new request from manager */
-        {
-            std::unique_lock<std::mutex> lk_resp(worker.mutex_resp_);
-            worker.Stop();
-            worker.state_ = kWorkerStateInited;
-            {
-                std::unique_lock<std::mutex> lk_req(worker.mutex_req_);
-                lk_resp.unlock();
-                worker.cv_resp_.notify_one();
-                worker.cv_req_.wait(lk_req, [&]{return (worker.to_run_ || worker.to_quit_);});
-            }
-        }
+
+        worker.Stop();
+
+        /* This response lock guarantees manager thread is waiting before this point. */
+        lk_resp.lock();
+        worker.state_ = kWorkerStateInited;
+
+        lk_req.lock();
+        lk_resp.unlock();
+        worker.cv_resp_.notify_one();
+        worker.cv_req_.wait(lk_req, [&]{return (worker.to_run_ || worker.to_quit_);});
     }
 
-    /* Inited -> Quiting */
+    lk_req.unlock();
+
+    /* Initing/Inited -> Quit */
     worker.Deinit();
-    {
-        std::unique_lock<std::mutex> lk_resp(worker.mutex_resp_);
-        worker.state_ = kWorkerStateQuiting;
-    }
+
+    /* If this "to_quit" request is received during initing, then we are still holding response lock, so
+     * no need to lock again. Otherwise, need to lock. */
+    if (worker.state_ != kWorkerStateIniting)
+        lk_resp.lock();
+
+    worker.state_ = kWorkerStateQuit;
+    lk_resp.unlock();
+
+    /* TODO: If this "to_quit" request is received during initing, then no need to notify. */
     worker.cv_resp_.notify_one();
 }
 
