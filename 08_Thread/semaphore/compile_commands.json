@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/build",
+  "command": "/usr/bin/c++    -I/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/interface -I/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore   -std=c++11   -o CMakeFiles/Semaphore.dir/interface/IUnNamedSemaphore.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/interface/IUnNamedSemaphore.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/interface/IUnNamedSemaphore.cpp"
+},
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/build",
+  "command": "/usr/bin/c++    -I/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/interface -I/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore   -std=c++11   -o CMakeFiles/Semaphore.dir/CvSemaphore.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/CvSemaphore.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/CvSemaphore.cpp"
+},
+{
+  "directory": "/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/build",
+  "command": "/usr/bin/c++    -I/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/interface -I/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore   -std=c++11   -o CMakeFiles/Semaphore.dir/PosixSemaphore.cpp.o -c /home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/PosixSemaphore.cpp",
+  "file": "/home/uidj4668/code/CPP/C-basic/08_Thread/semaphore/PosixSemaphore.cpp"
+}
+]
