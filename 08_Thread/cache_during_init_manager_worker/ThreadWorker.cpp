@@ -31,8 +31,8 @@
 #include "ThreadWorker.h"
 
 ThreadWorker::ThreadWorker(std::string name):
-    to_quit_(false),
     to_run_(false),
+    to_quit_(false),
     state_(kWorkerStateIniting),
     name_(name),
     cv_req_(),
