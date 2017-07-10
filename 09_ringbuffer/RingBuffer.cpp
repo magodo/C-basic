@@ -15,13 +15,6 @@ RingBuffer<T>::RingBuffer(int count):
     buf_.resize(count);
 }
 
-template<class T>
-RingBuffer<T>::RingBuffer():
-    read_idx_(0),
-    write_idx_(0),
-    free_space_(0)
-{}
-
 template <class T>
 bool RingBuffer<T>::write(int count, T *inputs)
 {
@@ -67,7 +60,7 @@ bool RingBuffer<T>::read(int count, T *outputs)
     return true;
 }
 template <class T>
-bool RingBuffer<T>::read_nopop(int offset, int count, T *outputs)
+bool RingBuffer<T>::read_nopop(int offset, int count, T *outputs) const
 {
     /* check if offset exceeds busy space */
     if (offset > (busySpace()-1))
@@ -86,12 +79,7 @@ bool RingBuffer<T>::read_nopop(int offset, int count, T *outputs)
 }
 
 template <class T>
-int RingBuffer<T>::incIdx(int index, int stride)
+int RingBuffer<T>::incIdx(int index, int stride) const
 {
     return (index+stride)%buf_.size();
 }
-
-/******************************************
- * Define all template class to use here
- ******************************************/
-template class RingBuffer<int>;

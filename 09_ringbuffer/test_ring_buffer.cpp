@@ -4,8 +4,8 @@
  Description: 
  ************************************************************************/
 
-#include "gtest/gtest.h"
 #include "RingBuffer.h"
+#include "gtest/gtest.h"
 #include <iostream>
 using namespace std;
 
