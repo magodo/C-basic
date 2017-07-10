@@ -68,17 +68,6 @@ int main()
 {
     int choice;
 
-
-    Consumer<int> *ptr_consumer = ProducerConsumerFactory<int>::NewConsumer();
-    Producer<int> *ptr_producer = ProducerConsumerFactory<int>::NewProducer();
-
-    int input = 1, output;
-
-    ptr_producer->Put(1, &input);
-    ptr_consumer->Get(1, &output);
-
-
-#if 0
     std::thread consumer(ConsumerThread, 1);
     std::thread producer(ProducerThread, 1);
 
@@ -116,5 +105,4 @@ int main()
                 break;
         }
     }while (choice != 0);
-#endif
 }

@@ -19,9 +19,11 @@ Producer<T>::Producer(RingBuffer<T> *queue, std::condition_variable *cv_producer
 template <class T>
 void Producer<T>::Put(int count, T *inputs)
 {
-    std::unique_lock<std::mutex> lock(*mutex_);
-    cv_producer_->wait(lock, [&]{return (queue_->freeSpace() >= count);});
-    queue_->write(count, inputs);
+    {
+        std::unique_lock<std::mutex> lock(*mutex_);
+        cv_producer_->wait(lock, [&]{return (queue_->freeSpace() >= count);});
+        queue_->write(count, inputs);
+    }
     cv_consumer_->notify_one(); // only notify consumer
 }
 
@@ -39,8 +41,10 @@ Consumer<T>::Consumer(RingBuffer<T> *queue, std::condition_variable *cv_producer
 template <class T>
 void Consumer<T>::Get(int count, T *outputs)
 {
-    std::unique_lock<std::mutex> lock(*mutex_);
-    cv_consumer_->wait(lock, [&]{return (queue_->busySpace() >= count);});
-    queue_->read(count, outputs);
+    {
+        std::unique_lock<std::mutex> lock(*mutex_);
+        cv_consumer_->wait(lock, [&]{return (queue_->busySpace() >= count);});
+        queue_->read(count, outputs);
+    }
     cv_producer_->notify_one(); // only notify producer
 }
