@@ -60,7 +60,7 @@ void ProducerThread(int id)
         std::srand(std::time(nullptr));
         input = std::rand();
         ptr_producer->Put(1, &input);
-        std::cout << "Producer[" << id << "] : put input" << input << std::endl;
+        std::cout << "Producer[" << id << "] : put input: " << input << std::endl;
     }
 }
 
@@ -68,8 +68,10 @@ int main()
 {
     int choice;
 
-    std::thread consumer(ConsumerThread, 1);
-    std::thread producer(ProducerThread, 1);
+    std::thread consumer1(ConsumerThread, 1);
+    std::thread consumer2(ConsumerThread, 2);
+    std::thread producer1(ProducerThread, 1);
+    std::thread producer2(ProducerThread, 2);
 
     do
     {
