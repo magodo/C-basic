@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
     hints.ai_next = NULL;
 
     getaddrinfo(host, argv[1], &hints, &ai_list); // FIXME
+    free(host);
 
     int index = 0;
     for (aip = ai_list; aip != NULL; aip = aip->ai_next)
@@ -162,4 +163,6 @@ int main(int argc, char *argv[])
         }
     }
     printf("-----------------------------------\n");
+
+    freeaddrinfo(ai_list);
 }
