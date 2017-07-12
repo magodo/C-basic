@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
         {
             struct sockaddr_in *addr_in = (struct sockaddr_in *)aip->ai_addr;
 
-            inet_ntop(aip->ai_family, addr_in, ip_address, INET6_ADDRSTRLEN);
+            inet_ntop(aip->ai_family, &addr_in->sin_addr, ip_address, INET6_ADDRSTRLEN);
             printf("IP Address: %s\n", ip_address);
             printf("Port: %d\n", ntohs(addr_in->sin_port));
         }
