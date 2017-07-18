@@ -1,4 +1,4 @@
-# Install script for directory: /home/magodo/github/code/C-basic/04_Socket/my_client_server/client
+# Install script for directory: /home/magodo/github/C-basic/04_Socket/my_client_server/client
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/magodo/github/code/C-basic/04_Socket/my_client_server/client/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/magodo/github/C-basic/04_Socket/my_client_server/client/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

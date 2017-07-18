@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <limits.h>
+#include <arpa/inet.h>
 
 #define BUFLEN 128
 #define MAXSLEEP 128
@@ -49,35 +50,42 @@ void print_uptime(int sockfd)
 
 int main(int argc, char *argv[])
 {
-    struct addrinfo *ailist, *aip;
+    struct addrinfo *ai_list, *aip;
     struct addrinfo hint;
     int sockfd, err;
-    char hostname[HOST_NAME_MAX];
 
     if (argc != 2)
     {
-        fprintf(stderr, "usage: ./a.out service_name\n");
+        fprintf(stderr, "usage: %s port\n", argv[0]);
         return -1;
     }
 
-    gethostname(hostname, HOST_NAME_MAX);
-
     memset(&hint, 0, sizeof(hint));
+    hint.ai_family = AF_INET;
     hint.ai_socktype = SOCK_STREAM;
-    hint.ai_canonname = NULL;
-    hint.ai_addr = NULL;
-    hint.ai_next = NULL;
-    if ((err = getaddrinfo(hostname, argv[1], &hint, &ailist)) != 0)
+    hint.ai_protocol = 0;
+
+    if ((err = getaddrinfo(NULL, argv[1], &hint, &ai_list)) != 0)
     {
         fprintf(stderr, "getaddrinfo error: %s", gai_strerror(err));
         return -1;
     }
-    for (aip = ailist; aip != NULL; aip = aip->ai_next)
+
+    for (aip = ai_list; aip != NULL; aip = aip->ai_next)
     {
-        if ((sockfd = connect_retry(aip->ai_family, SOCK_STREAM, 0, aip->ai_addr, aip->ai_addrlen)) < 0)
-            err = errno;
-        else
+
+#if 0
+        struct sockaddr_in *addr_in = (struct sockaddr_in *)aip->ai_addr;
+        char ip_address[INET6_ADDRSTRLEN];
+
+        inet_ntop(aip->ai_family, &addr_in->sin_addr, ip_address, INET6_ADDRSTRLEN);
+        printf("IP Address: %s\n", ip_address);
+        printf("Port: %d\n", ntohs(addr_in->sin_port));
+#endif
+
+        if ((sockfd = connect_retry(aip->ai_family, SOCK_STREAM, 0, aip->ai_addr, aip->ai_addrlen)) >= 0)
         {
+            freeaddrinfo(ai_list);
             print_uptime(sockfd);
             return 0;
         }
