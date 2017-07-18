@@ -6,6 +6,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
@@ -29,7 +30,7 @@ void setcloexec(int fd)
     fcntl(fd, F_SETFD, flags);
 }
 
-int serve(int fd)
+void serve(int fd)
 {
     int clfd;
     FILE *fp;
@@ -38,7 +39,8 @@ int serve(int fd)
     for (;;)
     {
         if ((clfd = accept(fd, NULL, NULL)) < 0)
-            exit(1);
+            return;
+#if 0
         setcloexec(clfd);
         if ((fp = popen("/usr/bin/uptime", "r")) == NULL)
         {
@@ -52,6 +54,39 @@ int serve(int fd)
             pclose(fp);
         }
         close(clfd);
+#else
+        pid_t pid;
+        if ((pid = fork()) < 0)
+        {
+            fprintf(stderr, "fork error: %s\n", strerror(errno));
+            return;
+        }
+        else if (pid == 0) // child
+        {
+            /* If clfd not equals to STDOUT_FILENO or STDERR_FILENO, the CLOEXEC flag is cleared in latter twos.
+             * That means they will be opened after exec.
+             * If clfd equals to either, then the CLOEXEC remains unchanged, which is by default not set. */
+
+            if (dup2(clfd, STDOUT_FILENO) != STDOUT_FILENO ||
+                dup2(clfd, STDERR_FILENO) != STDERR_FILENO)
+            {
+                fprintf(stderr, "dup2 error: %s\n", strerror(errno));
+                return;
+            }
+
+            if ((clfd != STDOUT_FILENO) || (clfd != STDERR_FILENO))
+            {
+                close(clfd);
+            }
+
+            execl("/usr/bin/uptime", "uptime", NULL);
+        }
+        else // parent
+        {
+            close(clfd);
+            waitpid(pid, NULL, 0);
+        }
+#endif
     }
 }
 
@@ -119,5 +154,6 @@ int main(int argc, char *argv[])
             exit(0);
         }
     }
+    fprintf(stderr, "Can't init server on port: %s\n", argv[1]);
     exit(1);
 }
