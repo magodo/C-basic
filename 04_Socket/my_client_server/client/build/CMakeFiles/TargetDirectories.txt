@@ -1,3 +1,0 @@
-/home/magodo/github/C-basic/04_Socket/my_client_server/client/build/CMakeFiles/rebuild_cache.dir
-/home/magodo/github/C-basic/04_Socket/my_client_server/client/build/CMakeFiles/client.dir
-/home/magodo/github/C-basic/04_Socket/my_client_server/client/build/CMakeFiles/edit_cache.dir

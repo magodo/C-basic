@@ -98,8 +98,12 @@ int initserver(int type, const struct sockaddr *addr, int alen, int qlen)
     if ((fd = socket(addr->sa_family, type, 0)) == -1)
         return -1;
     
-    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int));
+    /* Avoid TCP socket regards the address of a closed socket is in used during linger time(aka. TIME_WAIT state).
+     * Enabling this flag, another socket could bind to the exact same address if the previous socket bound to it
+     * is in TIME_WAIT state.*/
 
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int));
+ 
     if (bind(fd, addr, alen) == -1)
         return -1;
 
