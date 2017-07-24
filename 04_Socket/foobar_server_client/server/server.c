@@ -37,9 +37,19 @@ void serve(int fd)
 
         ssize_t n_recv;
 
-        while ((n_recv = recv(clfd, buf, BUFLEN, MSG_WAITALL)) == BUFLEN)
+        /* TODO: recv is not guaranteed to receive all bytes!*/
+        while ((n_recv = recv(clfd, buf, BUFLEN, 0)) == BUFLEN)
         {
-            printf("op_code = %d\n", buf[0]);
+#if 1
+            /* Following is not portable code since struct can't be sent portablly via socket.
+             * Compiler is free to pad over it.*/
+            struct PacketFormat *packet;
+            packet = (struct PacketFormat*)(buf);
+            printf("op_code  = %d\n", packet->op_code);
+            printf("op_value = %d\n", packet->op_value.i);
+#else
+            printf("op_value = %d\n", ntohl(*((int*)(&buf))));
+#endif
         }
         if (n_recv < 0)
         {

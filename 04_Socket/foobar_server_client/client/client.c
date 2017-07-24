@@ -57,6 +57,9 @@ void interactive(int sockfd)
             case 1:
                 {
                     packet.op_code = 1;
+                    packet.op_value.i = 2;
+
+                    /* TODO: send() is not guaranteed to send all bytes!*/
                     if (send(sockfd, &packet, sizeof(packet), 0) != sizeof(packet))
                     {
                         fprintf(stderr, "send error: %s\n", strerror(errno));
