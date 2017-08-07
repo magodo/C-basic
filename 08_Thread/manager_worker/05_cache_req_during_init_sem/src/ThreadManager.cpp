@@ -18,22 +18,18 @@
 @author   
 @par      Configuration Management:
 @verbatim
-	%derived_by: uidp7757 %
-	%full_filespec: IFbCtrl.h-1 % 
+	%derived_by: uidq8219 %
+	%full_filespec: ThreadManager.cpp-1:ascii:GWM_Sha#1 % 
 	%version: 1 % 
-	%date_created: Tue May 16 17:49:00 2017 % 
+	%date_created: Tue Jul 18 19:51:24 2017 % 
 @endverbatim
 
 @todo     list of things to do
 */
 
-#define DEBUG
-
-#ifdef DEBUG
 #include <iostream>
 #include <cerrno>
 #include <cstring>
-#endif
 
 #ifdef _GNU_SOURCE
 #include <pthread.h>
@@ -43,67 +39,58 @@
 
 bool ThreadManager::NewWorker(std::shared_ptr<ThreadWorker> p_worker)
 {
-#ifdef DEBUG
     std::cout << "Manager: create thread [" << p_worker->GetName() << "]..." << std::endl;
-#endif
     /* Check if same named thread worker has already been created. */
     if (named_workers_.find(p_worker->GetName()) != named_workers_.end())
     {
-#ifdef DEBUG
         std::cerr << "Manager: thread [" << p_worker->GetName() << "] already exists!" << std::endl;
-#endif
         return false;
     }
 
-    ThreadWorkerInfo& worker_info = named_workers_[p_worker->GetName()];
-
     /* Insert worker to lookup map. */
+
+    ThreadWorkerInfo& worker_info = named_workers_[p_worker->GetName()];
     worker_info.ptr = p_worker;
-
-    {
-        /* Create worker thread */
-        worker_info.thread = std::thread(ThreadWorker::ThreadFunction, std::ref(*p_worker));
-
-        /* Set the thread's name */
+    worker_info.req = ThreadWorkerReq::New;
+    /* Create worker thread */
+    worker_info.thread = std::thread(ThreadWorker::ThreadFunction, std::ref(*p_worker));
+    /* Set the thread's name */
 #ifdef _GNU_SOURCE
-        int ret;
-        ret = pthread_setname_np(worker_info.thread.native_handle(), p_worker->GetName().c_str());
-#ifdef DEBUG
-        if (ret != 0)
-            std::cerr << "Manager: pthread_setname_np failed: " << strerror(errno) << std::endl;
+    int ret;
+    ret = pthread_setname_np(worker_info.thread.native_handle(), p_worker->GetName().c_str());
+    if (ret != 0)
+        std::cerr << "Manager: pthread_setname_np failed: " << strerror(errno) << std::endl;
 #endif
-#endif
-    }
 
     return true;
 }
 
 bool ThreadManager::DeleteWorker(std::string worker_name)
 {
-#ifdef DEBUG
-    std::cout << "Manager: request delete thread [" << worker_name << "]" << std::endl;
-#endif
+    std::cout << "Manager: request thread [" << worker_name << "] to delete" << std::endl;
 
     /* Check existence of the worker thread. */
     if (named_workers_.find(worker_name) == named_workers_.end()) 
     {
-#ifdef DEBUG
         std::cerr << "Manager: thread [" << worker_name << "] not exists!" << std::endl;
-#endif
+        return false;
+    }
+    ThreadWorkerInfo &worker_info = named_workers_[worker_name];
+
+    /* Check if current request on worker thread is "quit". */
+
+    if (worker_info.req != ThreadWorkerReq::Quit)
+    {
+        std::cerr << "Manager: thread [" << worker_name << "] has not quited! \
+Please call `QuitWorker()` first!" << std::endl;
         return false;
     }
 
-    ThreadWorker& worker = *(named_workers_[worker_name].ptr);
-
-#ifdef DEBUG
     std::cout << "Manager: start to join thread [" << worker_name << "]" << std::endl;
-#endif
     /* Join the deinited thread. */
-    named_workers_[worker_name].thread.join();
+    worker_info.thread.join();
 
-#ifdef DEBUG
     std::cout << "Manager: finish to join thread [" << worker_name << "]" << std::endl;
-#endif
 
     /* Erase the worker from internal lookup map. This will delete the
      * WorkerThread object. */
@@ -114,74 +101,108 @@ bool ThreadManager::DeleteWorker(std::string worker_name)
 
 bool ThreadManager::QuitWorker(std::string worker_name)
 {
-#ifdef DEBUG
     std::cout << "Manager: request thread [" << worker_name << "] to quit" << std::endl;
-#endif
 
     /* Check existence of the worker thread. */
     if (named_workers_.find(worker_name) == named_workers_.end()) 
     {
-#ifdef DEBUG
         std::cerr << "Manager: thread [" << worker_name << "] not exists!" << std::endl;
-#endif
         return false;
     }
+    ThreadWorkerInfo &worker_info = named_workers_[worker_name];
 
-    ThreadWorker& worker = *(named_workers_[worker_name].ptr);
+    switch (worker_info.req)
+    {
+        case ThreadWorkerReq::New:
+        case ThreadWorkerReq::Stop:
+            /* do nothing */
+            break;
+        case ThreadWorkerReq::Run:
+            /* stop worker */
+            std::cerr << "Manager: thread [" << worker_name << "] is running, now stop it first." << std::endl;
+            StopWorker(worker_name);
+            break;
+        case ThreadWorkerReq::Quit:
+            std::cerr << "Manager: thread [" << worker_name << "] already quited!" << std::endl;
+            return false;
+            //break;
+    }
+    worker_info.req = ThreadWorkerReq::Quit;
 
+    ThreadWorker& worker = *(worker_info.ptr);
     worker.ToQuit();
-    /* In case the requsts quit during worker initing or inited. */
-    worker.GetOpSemaphore()->Post();
+    worker.GetOpSemaphore()->Post(); /* In case the requsts quit during worker initing or inited. */
 
     return true;
 }
 
 bool ThreadManager::RunWorker(std::string worker_name)
 {
-#ifdef DEBUG
     std::cout << "Manager: request thread [" << worker_name << "] to run" << std::endl;
-#endif
 
     /* Check existence of the worker thread. */
     if (named_workers_.find(worker_name) == named_workers_.end()) 
     {
-#ifdef DEBUG
         std::cerr << "Manager: thread [" << worker_name << "] not exists!" << std::endl;
-#endif
         return false;
     }
+    ThreadWorkerInfo &worker_info = named_workers_[worker_name];
 
-    ThreadWorker& worker = *(named_workers_[worker_name].ptr);
+    switch (worker_info.req)
+    {
+        case ThreadWorkerReq::New:
+        case ThreadWorkerReq::Stop:
+            {
+                ThreadWorker& worker = *(worker_info.ptr);
+                worker.ToRun();
+                worker.GetOpSemaphore()->Post();
+            }
+            break;
+        case ThreadWorkerReq::Run:
+            std::cerr << "Manager: thread [" << worker_name << "] already run!" << std::endl;
+            return false;
+            //break;
+        case ThreadWorkerReq::Quit:
+            std::cerr << "Manager: thread [" << worker_name << "] already quit!" << std::endl;
+            return false;
+            //break;
+    }
 
-    worker.ToRun();
-    worker.GetOpSemaphore()->Post();
-
+    worker_info.req = ThreadWorkerReq::Run;
     return true;
 }
 
 bool ThreadManager::StopWorker(std::string worker_name)
 {
-#ifdef DEBUG
     std::cout << "Manager: request thread [" << worker_name << "] to stop" << std::endl;
-#endif
 
     /* Check existence of the worker thread. */
     if (named_workers_.find(worker_name) == named_workers_.end()) 
     {
-#ifdef DEBUG
         std::cerr << "Manager: thread [" << worker_name << "] not exists!" << std::endl;
-#endif
         return false;
     }
+    ThreadWorkerInfo &worker_info = named_workers_[worker_name];
 
-    ThreadWorker& worker = *(named_workers_[worker_name].ptr);
-
-    worker.ToStop();
-    worker.GetStopSemaphore()->Wait();
-
-#ifdef DEBUG
-    std::cout << "Manager: thread [" << worker_name << "] in \"Inited\" state" << std::endl;
-#endif
-
+    switch (worker_info.req)
+    {
+        case ThreadWorkerReq::New:
+        case ThreadWorkerReq::Stop:
+            std::cerr << "Manager: thread [" << worker_name << "] not running!" << std::endl;
+            return false;
+            //break;
+        case ThreadWorkerReq::Run:
+            {
+                ThreadWorker& worker = *(worker_info.ptr);
+                worker.ToStop();
+                worker.GetStopSemaphore()->Wait();
+            }
+            break;
+        case ThreadWorkerReq::Quit:
+            std::cerr << "Manager: thread [" << worker_name << "] already quit!" << std::endl;
+            return false;
+            //break;
+    }
+    worker_info.req = ThreadWorkerReq::Stop;
     return true;
 }

@@ -18,10 +18,10 @@
 @author   
 @par      Configuration Management:
 @verbatim
-	%derived_by: uidp7757 %
-	%full_filespec: IFbCtrl.h-1 % 
+	%derived_by: uidq8219 %
+	%full_filespec: ThreadManager.h-1:incl:GWM_Sha#1 % 
 	%version: 1 % 
-	%date_created: Tue May 16 17:49:00 2017 % 
+	%date_created: Tue Jul 18 19:51:24 2017 % 
 @endverbatim
 
 @todo     list of things to do
@@ -39,10 +39,20 @@
 // forward delcare
 class ThreadWorker;
 
+/* current request on thread worker */
+enum class ThreadWorkerReq
+{
+    New,
+    Run,
+    Stop,
+    Quit
+};
+
 struct ThreadWorkerInfo
 {
     std::shared_ptr<ThreadWorker> ptr;
     std::thread                   thread;
+    ThreadWorkerReq               req;
 };
 
 class ThreadManager

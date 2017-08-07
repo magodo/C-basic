@@ -25,6 +25,11 @@ enum Request
     kQuitThread
 };
 
+std::vector<Request> GetAllRequest()
+{
+    return std::vector<Request>{kNewThread, kDeleteThread, kRunThread, kStopThread, kQuitThread};
+}
+
 std::vector<Request> GetRationalRequest(Request last_req)
 {
     switch (last_req)
@@ -95,8 +100,15 @@ int main(int argc, char *argv[])
 
         std::string thread_name = it->first;
 
-        // randomly send one request to the chosen thread
+        
+        // Get a request set (based on last request or all request sets available)
+#if 0
         std::vector<Request> requests = GetRationalRequest(it->second);
+#else
+        const std::vector<Request> requests = GetAllRequest();
+#endif
+
+        // randomly send one request to the chosen thread
         Request req = requests[rand() % requests.size()]; 
 
         /* Update last requst as current request. */
@@ -129,6 +141,7 @@ int main(int argc, char *argv[])
         Request req = element.second;
         std::string name = element.first;
 
+#if 0
         switch (req)
         {
             case kNewThread:
@@ -147,5 +160,9 @@ int main(int argc, char *argv[])
                 mgr.DeleteWorker(name);
                 break;
         }
+#else
+        mgr.QuitWorker(name);
+        mgr.DeleteWorker(name);
+#endif
     }
 }
