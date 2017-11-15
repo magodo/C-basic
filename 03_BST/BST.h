@@ -11,87 +11,105 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <exception>
+#include <functional>
 
 using namespace std;
 
-
 /**
  * Declaration of Node
+ *
+ * note: the type T must implement operator<=
  */
 
 template<typename T>
 struct Node
 {
-    Node(int key):
-        Node(key, T())
+    Node(T value):
+        value{value},
+        left{nullptr},
+        right{nullptr},
+        left_count{},
+        right_count{}
     {}
 
-    Node(int key, T value):
-        key(key),
-        value(value),
-        left(NULL),
-        right(NULL)
+    ~Node()
     {}
 
     T value;
-    int key;
     Node *left;
     Node *right;
+    int left_count;
+    int right_count;
     
-    inline static bool le(Node n, Node m) { return (n.key <= m.key);}
-    inline void inspect(){ cout << "(" << key << ", " << value << ") ";}
+    inline static bool le(Node n, Node m) { return (n.value <= m.value);}
 };
 
 /**
  * Declaration of BST
  */
 
+enum class BSTTraverseOrder
+{
+    pre,
+    mid,
+    post
+};
+
 template <class T>
 class BST
 {
-
-#ifdef DEBUG
-    public:
-        T *root;
-#else
-    private:
-        T *root;
-#endif
-
     public:
 
         /**
-         * Construct a balanced BST from vector
+         * C'tor
          */
-        void initBalanceBST(vector<T> container);
+        BST(vector<T> container);
+
+        /* D'tor */
+        ~BST() noexcept;
 
         /**
          * Traverse BST
          */
-        void traverse();
+        void traverse(function<void(T&)> f, BSTTraverseOrder order);
 
         /**
          * Search an element by key(return the first match)
          */
         T *search(int key);
 
+        /* Insert */
+        void insert()
 
-    private:
+
+    protected:
 
         /**
          * Recersively construct balanced BST
          */
-        T *do_initBalanceBST(vector<T> container);
+        virtual T *do_initBalanceBST(vector<T> container);
+
+        /* Recersively destroy node from the node specified. */
+
+        void do_destroyBalanceBST(T *node) noexcept;
 
         /**
          * Recersively traverse BST
          */
-        void do_traverse(T *node);
+        void do_traverse(T *node, BSTTraverseOrder order);
 
         /**
          * Recursively search
          */
         T *do_search(int key, T*);
+
+    private:
+
+        T *root;
+
+        /* Traverse functor. */
+        function<void(T&)> func;
 };
 
 #include "BST.tpp" // check [this](http://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file)

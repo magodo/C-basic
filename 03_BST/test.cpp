@@ -12,34 +12,22 @@ using namespace std;
 
 int main()
 {
-    BST<Node<int> > binary_tree;
-
-    /**
-     * Construct a non-BST tree and traverse it 
-     */
-    binary_tree.root = new Node<int>(2);
-    binary_tree.root->left = new Node<int>(1);
-    binary_tree.root->left->right = new Node<int>(3);
-    binary_tree.traverse();
-    cout << endl;
-
     /**
      * Construct a balanced BST
      */
 
-    vector<int> v{1,5,2,23,5,7,324,4,6,324,35,7,32};
-    vector<Node<int>> vn;
-    for (auto i: v)
-        vn.push_back(Node<int>(i));
+    BST<Node<int> > binary_tree{{1,2,3,4,5,6,7}};
 
-    binary_tree.initBalanceBST(vn);
-    binary_tree.traverse();
+    /* Traverse */
+    binary_tree.traverse([](Node<int>& node) {cout << node.key << " ";}, BSTTraverseOrder::mid);
     cout << endl;
 
     /**
      * Search the element by key
      */
-    cout << binary_tree.search(23)->value << endl;
+    auto node = binary_tree.search(5);
+    if (node)
+        cout << node->key << endl;
 }
 
 
