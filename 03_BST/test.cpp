@@ -16,18 +16,22 @@ int main()
      * Construct a balanced BST
      */
 
-    BST<Node<int> > binary_tree{{1,2,3,4,5,6,7}};
+    BST<Node<int> > binary_tree{{1,2,3,4,5,6,7,45,125,2346,12,123,235,67,142}};
 
     /* Traverse */
-    binary_tree.traverse([](Node<int>& node) {cout << node.key << " ";}, BSTTraverseOrder::mid);
-    cout << endl;
+
+    //binary_tree.traverse(BSTTraverseOrder::mid, [](Node<int>& node) {cout << node.value << "(left: "<< node.left_count << ", right: " << node.right_count << ") ";});
+    //cout << endl;
 
     /**
-     * Search the element by key
+     * Search the element by value
      */
     auto node = binary_tree.search(5);
     if (node)
-        cout << node->key << endl;
+        cout << node->value << endl;
+
+    /* draw */
+    binary_tree.draw("foo.dot");
 }
 
 

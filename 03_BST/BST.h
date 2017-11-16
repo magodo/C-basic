@@ -13,6 +13,7 @@
 #include <iostream>
 #include <exception>
 #include <functional>
+#include <string>
 
 using namespace std;
 
@@ -23,26 +24,25 @@ using namespace std;
  */
 
 template<typename T>
-struct Node
+class Node
 {
-    Node(T value):
-        value{value},
-        left{nullptr},
-        right{nullptr},
-        left_count{},
-        right_count{}
-    {}
+    public:
 
-    ~Node()
-    {}
+        Node(T value):
+            value{value},
+            left{nullptr},
+            right{nullptr},
+            left_count{},
+            right_count{}
+        {}
 
-    T value;
-    Node *left;
-    Node *right;
-    int left_count;
-    int right_count;
-    
-    inline static bool le(Node n, Node m) { return (n.value <= m.value);}
+        static bool le(Node n, Node m) { return (n.value <= m.value);}
+
+        T value;
+        Node *left;
+        Node *right;
+        int left_count;
+        int right_count;
 };
 
 /**
@@ -72,7 +72,7 @@ class BST
         /**
          * Traverse BST
          */
-        void traverse(function<void(T&)> f, BSTTraverseOrder order);
+        void traverse(BSTTraverseOrder order, function<void(T&)> f);
 
         /**
          * Search an element by key(return the first match)
@@ -80,7 +80,8 @@ class BST
         T *search(int key);
 
         /* Insert */
-        void insert()
+//        void insert()
+        void draw(string filename);
 
 
     protected:

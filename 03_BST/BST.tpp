@@ -6,6 +6,8 @@
 
 /* C'tor */
 
+#include <fstream>
+
 template<class T>
 BST<T>::BST(vector<T> container):
     func{nullptr}
@@ -23,14 +25,14 @@ T *BST<T>::do_initBalanceBST(vector<T> container)
     auto mid = beg + (end-beg)/2;
 
     T *node = new T(mid->value);
-    node->left_cout = (mid-beg);
-    node->right_cout = (end-mid-1);
+    node->left_count = (mid-beg);
+    node->right_count = (end-mid-1);
 
     /* Continue only when there is space in heap, otherwise the calling node be leaf */
-    new_node->left = (beg < mid)? do_initBalanceBST(vector<T>(beg, mid)) : nullptr;
-    new_node->right = (mid+1 < end)? do_initBalanceBST(vector<T>(mid+1, end)) : nullptr;
+    node->left = (beg < mid)? do_initBalanceBST(vector<T>(beg, mid)) : nullptr;
+    node->right = (mid+1 < end)? do_initBalanceBST(vector<T>(mid+1, end)) : nullptr;
 
-    return new_node;
+    return node;
 }
 
 /* D'tor */
@@ -55,7 +57,7 @@ void BST<T>::do_destroyBalanceBST(T *node) noexcept
 /* Traverse BST */
 
 template<class T>
-void BST<T>::traverse(function<void(T&)> f, BSTTraverseOrder order)
+void BST<T>::traverse(BSTTraverseOrder order, function<void(T&)> f)
 {
     func = f;
     do_traverse(root, order);
@@ -88,20 +90,40 @@ void BST<T>::do_traverse(T *node, BSTTraverseOrder order)
     }
 }
 
-/* Search element by key */
+/* Search element by value */
 
 template<class T>
-T *BST<T>::search(int key)
+T *BST<T>::search(int value)
 {
-    return do_search(key, root);
+    return do_search(value, root);
 }
 
 template<class T>
-T *BST<T>::do_search(int key, T *node)
+T *BST<T>::do_search(int value, T *node)
 {
-    if ((node == nullptr) || (node->key == key))
+    if ((node == nullptr) || (node->value == value))
         return node;
     
-    return (key > node->key)? do_search(key, node->right) : do_search(key, node->left);
+    return (value > node->value)? do_search(value, node->right) : do_search(value, node->left);
+}
+
+/* draw into a dot file */
+template<class T>
+void BST<T>::draw(string filename)
+{
+    ofstream os;
+    os.open(filename, ios::out);
+
+    if (os.is_open())
+    {
+        os << "digraph G\n{\n";
+        traverse(BSTTraverseOrder::mid, [&](T& node){ \
+                if (node.left)
+                    os << "\t\"" << node.value << "\" -> \"" << node.left->value << "\"\n"; \
+                if (node.right)
+                    os << "\t\"" << node.value << "\" -> \"" << node.right->value << "\"\n"; \
+                });
+        os << "}";
+    }
 }
 
